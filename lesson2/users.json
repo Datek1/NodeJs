@@ -1,34 +1,20 @@
 {
   "results": [
     {
-      "id": 1,
-      "name": "Stepan",
-      "age": 31
-    },
-    {
-      "id": 2,
-      "name": "Yura",
-      "age": 44
-    },
-    {
-      "id": 3,
       "name": "Clementina ",
       "age": 18
     },
     {
-      "id": 4,
-      "name": "Glenna",
-      "age": 66
-    },
-    {
-      "id": 5,
       "name": "Nichola ",
       "age": 15
     },
     {
-      "id": 6,
       "name": "Nick",
       "age": "10"
+    },
+    {
+      "name": "Mikser",
+      "age": "16"
     }
   ]
 }
