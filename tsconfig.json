@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
+    "module": "commonjs",
     "moduleResolution": "node",
     "rootDir": "./src",
-    "outDir": "./dict",
+    "outDir": "./dist",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "removeComments": true,
     "noImplicitAny": true,
     "skipDefaultLibCheck": true,
     "noUnusedLocals": true,
-  }
+  },
 }

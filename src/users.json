@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "name": "Clementina ",
+      "age": 18
+    },
+    {
+      "name": "Nichola ",
+      "age": 15
+    },
+    {
+      "name": "Nick",
+      "age": "10"
+    },
+    {
+      "name": "Mikser",
+      "age": "16"
+    }
+  ]
+}
