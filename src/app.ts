@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import * as fs from "fs";
+import * as mongoose from "mongoose";
 
 import users from "./users.json";
 
@@ -62,5 +63,6 @@ app.delete("/users/:id", (req: Request, res: Response) => {
 });
 const port = 4000;
 app.listen(port, () => {
+  mongoose.connect();
   console.log(`Example app listening on port ${port}`);
 });
