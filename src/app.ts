@@ -1,68 +1,64 @@
 import express, { Request, Response } from "express";
-import * as fs from "fs";
 import * as mongoose from "mongoose";
 
-import users from "./users.json";
+import { configs } from "./configs/config";
+import { User } from "./models/user.model";
+import { IUser } from "./types/user.type";
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/users", (req: Request, res: Response) => {
-  res.status(200).json(users);
-});
-
-app.post("/users", (req: Request, res: Response) => {
-  if (req.body.name.length >= 3 && req.body.age >= 0) {
-    fs.writeFile(
-      "users.json",
-      `${JSON.stringify({ results: [...users.results, req.body] })}`,
-      (err) => {
-        if (err) {
-          throw new Error(err.message);
-        }
-      }
-    );
-    res.status(201).json({ message: "User Created" });
-  } else {
-    throw new Error("Name - min lenght 3 and age > 0 ");
+app.get(
+  "/users",
+  async (req: Request, res: Response): Promise<Response<IUser[]>> => {
+    try {
+      const users = await User.find();
+      return res.json(users);
+    } catch (e) {
+      console.log(e.message);
+    }
   }
-});
-
-app.put("/users/:id", (req: Request, res: Response) => {
-  const { id } = req.params;
-  const user = users.results[+id];
-  if (!user) {
-    throw new Error("User isn`t finded");
-  } else {
-    res.status(200).json({ message: "User updated" });
-    users.results[+id] = req.body;
-    fs.writeFile("users.json", `${JSON.stringify(users)}`, (err) => {
-      if (err) {
-        throw new Error(err.message);
-      }
-    });
+);
+app.get(
+  "/users/:id",
+  async (req: Request, res: Response): Promise<Response<IUser>> => {
+    try {
+      const user = await User.findById(req.params.id);
+      return res.json(user);
+    } catch (e) {
+      console.log(e);
+    }
   }
-});
+);
 
-app.delete("/users/:id", (req: Request, res: Response) => {
-  const { id } = req.params;
-  const user = users.results[+id];
-  if (!user) {
-    throw new Error("Users isn`t finded");
-  } else {
-    res.status(200).json({ message: "User deleted" });
-    users.results.splice(+id, 1);
-    fs.writeFile("users.json", `${JSON.stringify(users)}`, (err) => {
-      if (err) {
-        throw new Error(err.message);
-      }
-    });
+app.post(
+  "/users",
+  async (req: Request, res: Response): Promise<Response<IUser>> => {
+    const createdUser = await User.create(req.body);
+    return res.status(201).json(createdUser);
+    try {
+    } catch (e) {
+      console.log(e.message);
+    }
   }
-});
-const port = 4000;
-app.listen(port, () => {
-  mongoose.connect();
-  console.log(`Example app listening on port ${port}`);
+);
+
+// app.put("/users/:id", (req: Request, res: Response) => {
+//   try {
+//
+//   }catch (e){
+//     console.log(e);
+//   }
+// });
+
+// app.delete(
+//   "/users/:id",
+//   async (req: Request, res: Response) => {}
+// );
+
+app.listen(configs.PORT, () => {
+  mongoose.connect(configs.DB_URL);
+  console.log(`Example app listening on port ${configs.PORT}`);
 });

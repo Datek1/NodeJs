@@ -27,51 +27,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const fs = __importStar(require("fs"));
-const users = require('./users.json');
+const mongoose = __importStar(require("mongoose"));
+const config_1 = require("./configs/config");
+const user_model_1 = require("./models/user.model");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-app.get('/users', (req, res) => {
-    res.status(200).json(users);
-});
-app.post('/users', (req, res) => {
-    if (req.body.name.length >= 3 && req.body.age >= 0) {
-        fs.writeFile('users.json', `${JSON.stringify({ "results": [...users.results, req.body] })}`, (err) => {
-        });
-        res.status(201).json({ message: 'User Created' });
+app.get("/users", async (req, res) => {
+    try {
+        const users = await user_model_1.User.find();
+        return res.json(users);
     }
-    else {
-        throw new Error('Name - min lenght 3 and age > 0 ');
+    catch (e) {
+        console.log(e.message);
     }
 });
-app.put('/users/:id', (req, res) => {
-    const { id } = req.params;
-    const user = users.results[+id];
-    if (!user) {
-        throw new Error('User isn`t finded');
+app.get("/users/:id", async (req, res) => {
+    try {
+        const user = await user_model_1.User.findById(req.params.id);
+        return res.json(user);
     }
-    else {
-        res.status(200).json({ message: 'User updated' });
-        users.results[+id] = req.body;
-        fs.writeFile('users.json', `${JSON.stringify((users))}`, (err) => {
-        });
+    catch (e) {
+        console.log(e);
     }
 });
-app.delete('/users/:id', (req, res) => {
-    const { id } = req.params;
-    const user = users.results[+id];
-    if (!user) {
-        throw new Error('Users isn`t finded');
+app.post("/users", async (req, res) => {
+    const createdUser = await user_model_1.User.create(req.body);
+    return res.status(201).json(createdUser);
+    try {
     }
-    else {
-        res.status(200).json({ message: 'User deleted' });
-        users.results.splice(+id, 1);
-        fs.writeFile('users.json', `${JSON.stringify((users))}`, (err) => {
-        });
+    catch (e) {
+        console.log(e.message);
     }
 });
-const port = 4000;
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+app.listen(config_1.configs.PORT, () => {
+    mongoose.connect(config_1.configs.DB_URL);
+    console.log(`Example app listening on port ${config_1.configs.PORT}`);
 });
