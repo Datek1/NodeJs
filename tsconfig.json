@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "removeComments": true,
-    "noImplicitAny": true,
+//    "noImplicitAny": true,
     "skipDefaultLibCheck": true,
     "noUnusedLocals": true,
   },

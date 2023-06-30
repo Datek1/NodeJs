@@ -29,7 +29,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const mongoose = __importStar(require("mongoose"));
 const config_1 = require("./configs/config");
+const errors_1 = require("./errors");
 const user_model_1 = require("./models/user.model");
+const validators_1 = require("./validators");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -42,6 +44,33 @@ app.get("/users", async (req, res) => {
         console.log(e.message);
     }
 });
+app.post("/users", async (req, res, next) => {
+    try {
+        const { error, value } = validators_1.UserValidator.create.validate(req.body);
+        if (error) {
+            throw new errors_1.ApiError(error.message, 400);
+        }
+        const createdUser = await user_model_1.User.create(value);
+        return res.status(201).json(createdUser);
+    }
+    catch (e) {
+        next(e);
+    }
+});
+app.put("/users/:id", async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { error, value } = validators_1.UserValidator.update.validate(req.body);
+        if (error) {
+            throw new errors_1.ApiError(error.message, 400);
+        }
+        const updatedUser = await user_model_1.User.findOneAndUpdate({ _id: id }, { ...value }, { returnDocument: "after" });
+        return res.status(200).json(updatedUser);
+    }
+    catch (e) {
+        next(e);
+    }
+});
 app.get("/users/:id", async (req, res) => {
     try {
         const user = await user_model_1.User.findById(req.params.id);
@@ -51,29 +80,14 @@ app.get("/users/:id", async (req, res) => {
         console.log(e);
     }
 });
-app.post("/users", async (req, res) => {
-    const createdUser = await user_model_1.User.create(req.body);
-    return res.status(201).json(createdUser);
-    try {
-    }
-    catch (e) {
-        console.log(e.message);
-    }
-});
-app.put("/users/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updatedUser = await user_model_1.User.findOneAndUpdate({ _id: id }, { ...req.body }, { returnDocument: "after" });
-        return res.status(200).json(updatedUser);
-    }
-    catch (e) {
-        console.log(e);
-    }
-});
 app.delete("/users/:id", async (req, res) => {
     const { id } = req.params;
     await user_model_1.User.deleteOne({ _id: id });
     return res.sendStatus(200);
+});
+app.use((error, req, res, next) => {
+    const status = error.status || 500;
+    return res.status(status).json(error.message);
 });
 app.listen(config_1.configs.PORT, () => {
     mongoose.connect(config_1.configs.DB_URL);

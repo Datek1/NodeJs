@@ -1,9 +1,11 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import * as mongoose from "mongoose";
 
 import { configs } from "./configs/config";
+import { ApiError } from "./errors";
 import { User } from "./models/user.model";
 import { IUser } from "./types/user.type";
+import { UserValidator } from "./validators";
 
 const app = express();
 
@@ -21,41 +23,57 @@ app.get(
     }
   }
 );
-app.get(
-  "/users/:id",
-  async (req: Request, res: Response): Promise<Response<IUser>> => {
-    try {
-      const user = await User.findById(req.params.id);
-      return res.json(user);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-);
 
 app.post(
   "/users",
-  async (req: Request, res: Response): Promise<Response<IUser>> => {
-    const createdUser = await User.create(req.body);
-    return res.status(201).json(createdUser);
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser>> => {
     try {
+      const { error, value } = UserValidator.create.validate(req.body);
+      if (error) {
+        throw new ApiError(error.message, 400);
+      }
+      const createdUser = await User.create(value);
+      return res.status(201).json(createdUser);
     } catch (e) {
-      console.log(e.message);
+      next(e);
     }
   }
 );
 
 app.put(
   "/users/:id",
-  async (req: Request, res: Response): Promise<Response<IUser>> => {
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser>> => {
     try {
       const { id } = req.params;
+      const { error, value } = UserValidator.update.validate(req.body);
+      if (error) {
+        throw new ApiError(error.message, 400);
+      }
       const updatedUser = await User.findOneAndUpdate(
         { _id: id },
-        { ...req.body },
+        { ...value },
         { returnDocument: "after" }
       );
       return res.status(200).json(updatedUser);
+    } catch (e) {
+      next(e);
+    }
+  }
+);
+app.get(
+  "/users/:id",
+  async (req: Request, res: Response): Promise<Response<IUser>> => {
+    try {
+      const user = await User.findById(req.params.id);
+      return res.json(user);
     } catch (e) {
       console.log(e);
     }
@@ -70,7 +88,10 @@ app.delete(
     return res.sendStatus(200);
   }
 );
-
+app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+  const status = error.status || 500;
+  return res.status(status).json(error.message);
+});
 app.listen(configs.PORT, () => {
   mongoose.connect(configs.DB_URL);
   console.log(`Example app listening on port ${configs.PORT}`);
