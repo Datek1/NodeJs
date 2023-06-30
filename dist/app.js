@@ -60,6 +60,21 @@ app.post("/users", async (req, res) => {
         console.log(e.message);
     }
 });
+app.put("/users/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedUser = await user_model_1.User.findOneAndUpdate({ _id: id }, { ...req.body }, { returnDocument: "after" });
+        return res.status(200).json(updatedUser);
+    }
+    catch (e) {
+        console.log(e);
+    }
+});
+app.delete("/users/:id", async (req, res) => {
+    const { id } = req.params;
+    await user_model_1.User.deleteOne({ _id: id });
+    return res.sendStatus(200);
+});
 app.listen(config_1.configs.PORT, () => {
     mongoose.connect(config_1.configs.DB_URL);
     console.log(`Example app listening on port ${config_1.configs.PORT}`);

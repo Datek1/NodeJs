@@ -45,18 +45,31 @@ app.post(
   }
 );
 
-// app.put("/users/:id", (req: Request, res: Response) => {
-//   try {
-//
-//   }catch (e){
-//     console.log(e);
-//   }
-// });
+app.put(
+  "/users/:id",
+  async (req: Request, res: Response): Promise<Response<IUser>> => {
+    try {
+      const { id } = req.params;
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: id },
+        { ...req.body },
+        { returnDocument: "after" }
+      );
+      return res.status(200).json(updatedUser);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+);
 
-// app.delete(
-//   "/users/:id",
-//   async (req: Request, res: Response) => {}
-// );
+app.delete(
+  "/users/:id",
+  async (req: Request, res: Response): Promise<Response<void>> => {
+    const { id } = req.params;
+    await User.deleteOne({ _id: id });
+    return res.sendStatus(200);
+  }
+);
 
 app.listen(configs.PORT, () => {
   mongoose.connect(configs.DB_URL);
