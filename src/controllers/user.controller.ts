@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
 import { ApiError } from "../errors";
-import { userService } from "../services/user.service";
+import { userService } from "../services";
 import { IUser } from "../types/user.type";
 import { UserValidator } from "../validators";
 

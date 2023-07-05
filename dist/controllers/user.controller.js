@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userController = void 0;
 const errors_1 = require("../errors");
-const user_service_1 = require("../services/user.service");
+const services_1 = require("../services");
 const validators_1 = require("../validators");
 class UserController {
     async findAll(req, res) {
         try {
-            const users = await user_service_1.userService.findAll();
+            const users = await services_1.userService.findAll();
             return res.json(users);
         }
         catch (e) {
@@ -16,7 +16,7 @@ class UserController {
     }
     async create(req, res, next) {
         try {
-            const createdUser = await user_service_1.userService.create(req.res.locals);
+            const createdUser = await services_1.userService.create(req.res.locals);
             return res.status(200).json(createdUser);
         }
         catch (e) {
@@ -25,7 +25,7 @@ class UserController {
     }
     async findById(req, res, next) {
         try {
-            const user = await user_service_1.userService.findById(req.params.id);
+            const user = await services_1.userService.findById(req.params.id);
             return res.json(user);
         }
         catch (e) {
@@ -39,7 +39,7 @@ class UserController {
             if (error) {
                 throw new errors_1.ApiError(error.message, 400);
             }
-            const updatedUser = await user_service_1.userService.update(id, value);
+            const updatedUser = await services_1.userService.update(id, value);
             return res.status(201).json(updatedUser);
         }
         catch (e) {
@@ -48,7 +48,7 @@ class UserController {
     }
     async delete(req, res) {
         const { id } = req.params;
-        await user_service_1.userService.delete(id);
+        await services_1.userService.delete(id);
         return res.sendStatus(200);
     }
 }
